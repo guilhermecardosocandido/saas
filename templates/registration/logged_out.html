@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Você saiu{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h2>Você saiu com sucesso</h2>
+  <p class="text-muted">Até logo!</p>
+  <a href="{% url 'login' %}" class="btn btn-primary">Entrar novamente</a>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendário{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<style>
+  #calendar { max-width: 1100px; margin: 0 auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Calendário de Horários Disponíveis</h2>
+
+<div id="calendar"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    locale: 'pt-br',
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    events: function(info, successCallback, failureCallback) {
+      fetch(`/availability/api/calendar-events/?start=${info.startStr}&end=${info.endStr}`)
+        .then(r => r.json())
+        .then(data => successCallback(data))
+        .catch(() => failureCallback());
+    },
+    eventClick: function(info) {
+      if (confirm('Deseja agendar este horário?')) {
+        window.location.href = info.event.url;
+      }
+      info.jsEvent.preventDefault();
+    }
+  });
+  
+  calendar.render();
+});
+</script>
+{% endblock %}

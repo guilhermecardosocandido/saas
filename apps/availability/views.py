@@ -229,3 +229,59 @@ def available_slots_api(request):
         for s in qs
     ]
     return JsonResponse({"results": data})
+
+
+@login_required
+def calendar_view(request):
+    """
+    Página de calendário visual
+    """
+    return render(request, "availability/calendar.html")
+
+
+@login_required
+def calendar_events_api(request):
+    """
+    Retorna eventos no formato FullCalendar
+    GET /availability/api/calendar-events/?start=YYYY-MM-DD&end=YYYY-MM-DD
+    """
+    from datetime import date as date_type
+    from django.utils.dateparse import parse_date
+    
+    start_str = request.GET.get("start")
+    end_str = request.GET.get("end")
+    
+    start = parse_date(start_str) if start_str else None
+    end = parse_date(end_str) if end_str else None
+    
+    if not (isinstance(start, date_type) and isinstance(end, date_type)):
+        return JsonResponse({"events": []})
+    
+    # busca slots disponíveis no intervalo
+    slots = TimeSlot.objects.filter(
+        date__gte=start,
+        date__lte=end,
+        is_available=True
+    ).select_related("provider")
+    
+    # ignora dias bloqueados
+    blocked_dates = set(
+        DayOff.objects.filter(date__gte=start, date__lte=end)
+        .values_list("date", "provider_id")
+    )
+    
+    events = []
+    for s in slots:
+        if (s.date, s.provider_id) in blocked_dates:
+            continue
+        
+        events.append({
+            "id": s.id,
+            "title": f"{s.start_time.strftime('%H:%M')} - {s.provider.username}",
+            "start": f"{s.date}T{s.start_time}",
+            "end": f"{s.date}T{s.end_time}",
+            "url": f"/novo/?slot={s.id}",  # link para agendar
+            "color": "#28a745",
+        })
+    
+    return JsonResponse(events, safe=False)

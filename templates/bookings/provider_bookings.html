@@ -1,17 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Meus Agendamentos{% endblock %}
-
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-{% endblock %}
+{% block title %}Agendamentos dos Clientes{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center justify-content-between mb-3">
-  <h2 class="mb-0">Meus Agendamentos</h2>
-  <a href="{% url 'booking_create' %}" class="btn btn-primary">Novo Agendamento</a>
-</div>
+<h2 class="mb-3">Agendamentos dos Clientes</h2>
 
 <div class="card mb-3">
   <div class="card-body">
@@ -27,7 +20,7 @@
       </div>
       <div class="col-auto">
         <button class="btn btn-secondary" type="submit">Filtrar</button>
-        <a class="btn btn-outline-secondary" href="{% url 'booking_list' %}">Limpar</a>
+        <a class="btn btn-outline-secondary" href="{% url 'provider_bookings' %}">Limpar</a>
       </div>
     </form>
   </div>
@@ -41,48 +34,36 @@
           <tr>
             <th>Data</th>
             <th>Horário</th>
-            <th>Prestador</th>
+            <th>Cliente</th>
+            <th>Email</th>
+            <th>Telefone</th>
             <th>Status</th>
-            <th>Criado em</th>
-            <th class="text-end">Ações</th>
+            <th>Agendado em</th>
           </tr>
         </thead>
         <tbody>
-          {% for booking in bookings %}
+          {% for b in bookings %}
             <tr>
-              <td>{{ booking.time_slot.date|date:"d/m/Y" }}</td>
-              <td>{{ booking.time_slot.start_time }} - {{ booking.time_slot.end_time }}</td>
-              <td>{{ booking.time_slot.provider.get_full_name|default:booking.time_slot.provider.username }}</td>
+              <td>{{ b.time_slot.date|date:"d/m/Y" }}</td>
+              <td>{{ b.time_slot.start_time }} - {{ b.time_slot.end_time }}</td>
+              <td>{{ b.user.get_full_name|default:b.user.username }}</td>
+              <td><a href="mailto:{{ b.user.email }}">{{ b.user.email }}</a></td>
+              <td>{{ b.user.phone|default:"—" }}</td>
               <td>
-                {% if booking.status == 'pending' %}
+                {% if b.status == 'pending' %}
                   <span class="badge bg-warning text-dark">Pendente</span>
-                {% elif booking.status == 'confirmed' %}
+                {% elif b.status == 'confirmed' %}
                   <span class="badge bg-success">Confirmado</span>
-                {% elif booking.status == 'cancelled' %}
+                {% elif b.status == 'cancelled' %}
                   <span class="badge bg-danger">Cancelado</span>
-                {% elif booking.status == 'completed' %}
+                {% elif b.status == 'completed' %}
                   <span class="badge bg-secondary">Concluído</span>
                 {% endif %}
               </td>
-              <td class="text-muted small">{{ booking.created_at|date:"d/m/Y H:i" }}</td>
-              <td class="text-end">
-                {% if booking.status == 'pending' or booking.status == 'confirmed' %}
-                  <form method="post" action="{% url 'booking_cancel' booking.pk %}" style="display:inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger"
-                            onclick="return confirm('Deseja cancelar este agendamento?')">
-                      Cancelar
-                    </button>
-                  </form>
-                {% else %}
-                  <span class="text-muted">—</span>
-                {% endif %}
-              </td>
+              <td class="text-muted small">{{ b.created_at|date:"d/m/Y H:i" }}</td>
             </tr>
           {% empty %}
-            <tr>
-              <td colspan="6" class="text-center text-muted">Nenhum agendamento encontrado.</td>
-            </tr>
+            <tr><td colspan="7" class="text-center text-muted">Nenhum agendamento encontrado.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -92,13 +73,11 @@
       <nav>
         <ul class="pagination justify-content-center">
           {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}">Primeira</a></li>
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Anterior</a></li>
           {% endif %}
           <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
           {% if page_obj.has_next %}
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Próxima</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Última</a></li>
           {% endif %}
         </ul>
       </nav>

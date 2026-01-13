@@ -26,7 +26,13 @@
     <div class="col-md-5">
       <div class="card">
         <div class="card-body">
-          <label class="form-label" for="slot-date">Data</label>
+          <label class="form-label" for="provider-select">Prestador (opcional)</label>
+          <select id="provider-select" class="form-select">
+            <option value="">Todos</option>
+            <!-- preencher dinamicamente via view ou hardcode -->
+          </select>
+
+          <label class="form-label mt-3" for="slot-date">Data</label>
           <input id="slot-date" name="slot_date" type="date" class="form-control">
           <div class="form-text">Escolha uma data para ver os horários disponíveis.</div>
         </div>
