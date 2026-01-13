@@ -1,0 +1,89 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f8fa;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #35424a;
+  color: #ffffff;
+  padding: 10px 0;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+}
+
+.container {
+  width: 80%;
+  margin: auto;
+  overflow: hidden;
+}
+
+.button {
+  display: inline-block;
+  font-size: 16px;
+  color: #fff;
+  background: #35424a;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.button:hover {
+  background: #e8491d;
+}
+
+.table {
+  width: 100%;
+  margin: 20px 0;
+  border-collapse: collapse;
+}
+
+.table td,
+.table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: #35424a;
+  color: white;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table tr:hover {
+  background-color: #ddd;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.card {
+  border: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+}
+
+.navbar-brand {
+  font-weight: 600;
+}

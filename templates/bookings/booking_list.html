@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meus Agendamentos{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2>Meus Agendamentos</h2>
+
+<a href="{% url 'booking_create' %}" class="btn btn-primary mb-3">Novo Agendamento</a>
+
+{% if bookings %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Horário</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for booking in bookings %}
+        <tr>
+          <td>{{ booking.time_slot.date|date:"d/m/Y" }}</td>
+          <td>{{ booking.time_slot.start_time }} - {{ booking.time_slot.end_time }}</td>
+          <td>
+            {% if booking.status == 'pending' %}
+              <span class="badge bg-warning">Pendente</span>
+            {% elif booking.status == 'confirmed' %}
+              <span class="badge bg-success">Confirmado</span>
+            {% elif booking.status == 'cancelled' %}
+              <span class="badge bg-danger">Cancelado</span>
+            {% elif booking.status == 'completed' %}
+              <span class="badge bg-info">Concluído</span>
+            {% else %}
+              {{ booking.status }}
+            {% endif %}
+          </td>
+          <td>
+            {% if booking.status == 'pending' %}
+              <form method="post" action="{% url 'booking_cancel' booking.pk %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Deseja cancelar este agendamento?')">
+                  Cancelar
+                </button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>Você ainda não tem agendamentos.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agenda (Admin){% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+  .weekday-grid label { margin-right: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Agenda / Disponibilidade</h2>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Gerar horários (recorrência)</h5>
+
+        <form method="post" class="row g-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="generate">
+
+          <div class="col-md-3">
+            <label class="form-label">Mês</label>
+            {{ gen_form.month }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Ano</label>
+            {{ gen_form.year }}
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Data início</label>
+            {{ gen_form.start_date }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Data fim</label>
+            {{ gen_form.end_date }}
+          </div>
+
+          <div class="col-12 weekday-grid">
+            <label class="form-label d-block">Dias da semana</label>
+            {{ gen_form.weekdays }}
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Início</label>
+            {{ gen_form.start_time }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fim</label>
+            {{ gen_form.end_time }}
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Início 2 (opcional)</label>
+            {{ gen_form.start_time_2 }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Fim 2 (opcional)</label>
+            {{ gen_form.end_time_2 }}
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Duração (min)</label>
+            {{ gen_form.slot_minutes }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Intervalo (min)</label>
+            {{ gen_form.break_minutes }}
+          </div>
+
+          <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100" type="submit">Gerar</button>
+          </div>
+
+          {% if gen_form.errors %}
+            <div class="col-12">
+              <div class="alert alert-danger mb-0">{{ gen_form.errors }}</div>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Horários (últimos 300)</h5>
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Data</th><th>Início</th><th>Fim</th><th>Disponível</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in slots %}
+                <tr>
+                  <td>{{ s.date|date:"d/m/Y" }}</td>
+                  <td>{{ s.start_time }}</td>
+                  <td>{{ s.end_time }}</td>
+                  <td>
+                    {% if s.is_available %}<span class="badge bg-success">Sim</span>
+                    {% else %}<span class="badge bg-secondary">Não</span>{% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4">Nenhum horário cadastrado.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Bloquear / desbloquear dia</h5>
+
+        <form method="post" class="row g-2">
+          {% csrf_token %}
+          <div class="col-12">
+            <label class="form-label">Data</label>
+            {{ dayoff_form.date }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Motivo (opcional)</label>
+            {{ dayoff_form.reason }}
+          </div>
+
+          <div class="col-6">
+            <button class="btn btn-outline-danger w-100" name="action" value="block_day" type="submit">
+              Bloquear
+            </button>
+          </div>
+          <div class="col-6">
+            <button class="btn btn-outline-success w-100" name="action" value="unblock_day" type="submit">
+              Desbloquear
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Dias bloqueados</h5>
+        <ul class="list-group">
+          {% for d in dayoffs %}
+            <li class="list-group-item d-flex justify-content-between">
+              <span>{{ d.date|date:"d/m/Y" }}</span>
+              <span class="text-muted small">{{ d.reason }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">Nenhum dia bloqueado.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
